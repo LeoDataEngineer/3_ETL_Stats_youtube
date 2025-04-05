@@ -4,18 +4,24 @@ import requests
 import json
 import random
 import os
-from  config import *
+#from  config import *
 from sqlalchemy import create_engine, text
 
 
+# Credenciales API guardadas en github en sus variables de entorno
+API_KEY = os.environ['API_KEY']
+USER = os.environ['USER']
+PASSWORD = os.environ['PASSWORD']
+HOST = os.environ['HOST']
+PORT = os.environ['PORT']   
+DATABASE = os.environ['DATABASE']
 
-api_key = API_KEY
 # Funciones
 # Funcion para obtener los datos de las estadicticas del canal
 # Esta funcion recibe el api_key y el channel_id y devuelve un diccionario con las estadisticas del canal
-def get_stats(api_key,channel_id):
+def get_stats(API_KEY,channel_id):
     
-    url_channel_stats = 'https://youtube.googleapis.com/youtube/v3/channels?part=statistics&id='+channel_id+'&key='+api_key
+    url_channel_stats = 'https://youtube.googleapis.com/youtube/v3/channels?part=statistics&id='+channel_id+'&key='+API_KEY
     response_channels = requests.get(url_channel_stats)
     channel_stats = json.loads(response_channels.content)
     channel_stats = channel_stats['items'][0]['statistics']
@@ -33,7 +39,7 @@ def get_stats(api_key,channel_id):
 
 
 # Funcion para obtener los datos de las estadisticas de varios canales 
-def channels_stats(df,api_key):
+def channels_stats(df,API_KEY):
     
     date = []
     views = []
@@ -45,7 +51,7 @@ def channels_stats(df,api_key):
     
     for i in range(len(df)):
         
-        stats_temp = get_stats(api_key,df['Channel_id'][i])
+        stats_temp = get_stats(API_KEY,df['Channel_id'][i])
         
         channel_name.append(df['Channel_name'][i])
         date.append(stats_temp['Date'])
@@ -131,7 +137,7 @@ if __name__ == "__main__":
     print(df_channels)
 
 
-    df = channels_stats(df_channels,api_key)
+    df = channels_stats(df_channels,API_KEY)
     print(df)
 
     guardar_csv(df, carpeta='channel_files')
