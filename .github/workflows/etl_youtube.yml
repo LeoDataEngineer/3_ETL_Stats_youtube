@@ -24,7 +24,7 @@ jobs:
 
       - name: Ejecutar ETL
         run: |
-          python etl_youtube_stats.py
+          python stats_youtube.py
         env:
           API_KEY: ${{ secrets.API_KEY }}
           USER: ${{ secrets.USER }}
