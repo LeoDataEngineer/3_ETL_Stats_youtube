@@ -82,6 +82,5 @@ El script analiza los siguientes canales de YouTube:
 - **freeCodeCamp**
 - **Valen Werle**
 
-
-## Link del Dashboard en Construcción
+## Link del Dashboard en Construcción.
 [Link Dashboard]('https://lookerstudio.google.com/')
