@@ -83,4 +83,4 @@ El script analiza los siguientes canales de YouTube:
 - **Valen Werle**
 
 ## Link del Dashboard en Construcción.
-[Link Dashboard]('https://lookerstudio.google.com/')
+[Link Dashboard](https://lookerstudio.google.com/)
