@@ -44,7 +44,7 @@ Se estructuran los datos en un **DataFrame de Pandas**, agregando:
 ### 📊 Visualización
 Los datos pueden visualizarse luego en un **dashboard creado en Looker** conectado a la base **MySQL**.
 
-# 🔐 Configuración
+# 🔐 Configuración.
 
 Crea un archivo `config.py` con las siguientes variables:
 
