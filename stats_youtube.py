@@ -4,7 +4,7 @@ import requests
 import json
 import random
 import os
-#from  config import *
+# from  config import *
 from sqlalchemy import create_engine, text
 
 
@@ -15,6 +15,14 @@ PASSWORD = os.environ['PASSWORD']
 HOST = os.environ['HOST']
 PORT = os.environ['PORT']   
 DATABASE = os.environ['DATABASE']
+
+# API_KEY = API_KEY
+# USER = USER
+# PASSWORD = PASSWORD
+# HOST = HOST
+# PORT = PORT   
+# DATABASE = DATABASE
+
 
 # Funciones
 # Funcion para obtener los datos de las estadicticas del canal
@@ -72,6 +80,8 @@ def channels_stats(df,API_KEY):
     
     df_channels = pd.DataFrame(data)
     
+    
+    
     return df_channels 
 
 
@@ -111,6 +121,42 @@ def guardar_en_mysql(df, fecha):
     df.to_sql(tabla, con=engine, if_exists='append', index=False)
     print(f"Datos guardados en MySQL para la fecha: {fecha}")
     
+
+def guardar_procesar_segunda_tabla_en_mysql(df):
+    # 1. Conexión a MySQL
+    engine = create_engine(f"mysql+pymysql://{USER}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}")
+    tabla = 'youtube_stats'
+
+    with engine.begin() as conn:
+       
+        # 3. Leer tabla original
+        df_total = pd.read_sql(f"SELECT * FROM {tabla}", conn)
+
+        # 4. Ordenar por canal y fecha
+        df_total = df_total.sort_values(by=["Channel_name", "Createt_at"])
+
+        # 5. Calcular columnas nuevas por canal
+        df_total["Nuevos_Subscribers"] = df_total.groupby("Channel_name")["Subscribers"].diff().fillna(0).astype(int)
+        df_total["Nuevas_Views"] = df_total.groupby("Channel_name")["Total_Views"].diff().fillna(0).astype(int)
+        df_total["Nuevos_Videos"] = df_total.groupby("Channel_name")["Video_count"].diff().fillna(0).astype(int)
+
+        # 6. Solo mantener columnas necesarias para la nueva tabla
+        df_procesado = df_total[["id", "Channel_name","Nuevos_Subscribers", "Nuevas_Views", "Nuevos_Videos", "Createt_at"]]
+
+        # 7. Truncar tabla destino
+        conn.execute(text("TRUNCATE TABLE youtube_stats_procesada"))
+
+        # 8. Insertar los datos procesados
+        insert_query = """
+            INSERT INTO youtube_stats_procesada (id, Channel_name, Nuevos_Subscribers, Nuevas_Views, Nuevos_Videos, Createt_at)
+            VALUES (:id, :Channel_name, :Nuevos_Subscribers, :Nuevas_Views, :Nuevos_Videos, :Createt_at)
+        """
+        for _, row in df_procesado.iterrows():
+            conn.execute(text(insert_query), row.to_dict())
+
+    print("Datos procesados e insertados correctamente en youtube_stats_procesada.")
+
+
     
 ################### Crear df de canalas para analizar ###################
 
@@ -145,4 +191,6 @@ if __name__ == "__main__":
 
     guardar_en_mysql(df, df['Createt_at'][0])
     print("Datos guardados en MySQL correctamente")
+    
+    guardar_procesar_segunda_tabla_en_mysql(df)
 
